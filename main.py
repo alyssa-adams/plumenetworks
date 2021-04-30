@@ -480,23 +480,33 @@ if __name__ == '__main__':
         color = []
         #pos.update((n, (1, i)) for i, n in enumerate(bottom_nodes))  # put nodes from X at x=1
         #pos.update((n, (2, i)) for i, n in enumerate(top_nodes))  # put nodes from Y at x=2
-        pos = nx.spring_layout(G)
+        pos = nx.bipartite_layout(G, top_nodes)
 
         # node size scale with reaction energy (only reaction nodes)
         node_attributes = dict(G.nodes.data())
         nodes = list(G.nodes())
         node_sizes = []
-        scale = 10
+        scale = 50
         for node in nodes:
             try:
                 node_sizes.append(scale*node_attributes[node]['energy'])
             except:
-                node_sizes.append(10)
+                node_sizes.append(500)
+
+        # node labels above node
+        pos_attrs = {}
+        for node, coords in pos.items():
+            pos_attrs[node] = (coords[0], coords[1] + 0.04)
 
         # scaled nodes
         #nx.draw(G, pos=pos, with_labels=True, node_color=color_list, font_size=8, node_size=node_sizes)
-        nx.draw(G, pos=pos, with_labels=True, node_color=color_list, font_size=8, node_size=node_sizes)
-        plt.show()
-        plt.savefig(plume_network + '.pdf')
+        nx.draw(G, pos=pos, with_labels=False, node_color=color_list, font_size=12, node_size=node_sizes, arrowsize=20)
+        nx.draw_networkx_labels(G, pos_attrs)
+
+        # plot title
+        plttitle = ' '.join(list(map(lambda x: x.capitalize(), plume_network.split('_')[:-1])))
+        plt.title(plttitle)
+        #plt.show()
+        plt.savefig(plume_network + '_energy_percents.pdf')
         plt.clf()
 
